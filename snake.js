@@ -43,8 +43,27 @@ window.onload = function () {
 };
 
 function reset() {
-    score = tailLength -2;
+    if (endBufferTicked > endScreenBufferMax) {
+        trailCoords = [];
+        head = {x: 14, y: 0};
+        apple = {x: 0, y: 0};
+        tailLength = 2;
+        endBufferTicked = 0;
+        generateApple();
+        xv = 0;
+        yv = 1;
+        showingEnd = false;
+        setCookie("highScore", topScore, 7);
+        score = 0;
+        document.removeEventListener("mousedown", reset);
+    }
+}
+
+function fail() {
+    score = tailLength - 2;
     showingEnd = true;
+    document.addEventListener("mousedown", reset);
+    setCookie("highScore", topScore, 7);
 }
 
 function showEnd() {
@@ -52,22 +71,6 @@ function showEnd() {
     ctx.font = '50px Arial';
     ctx.fillText("Game Over! Score: " + score, 20, 180);
 
-    document.addEventListener("mousedown", function () {
-        if (endBufferTicked > endScreenBufferMax) {
-            score = tailLength - 2;
-            trailCoords = [];
-            head = {x: 14, y: 0};
-            apple = {x: 0, y: 0};
-            tailLength = 2;
-            endBufferTicked = 0;
-            generateApple();
-            xv = 0;
-            yv = 1;
-            setCookie("highScore", topScore, 7);
-            reset()
-            showingEnd = false;
-        }
-    });
     endBufferTicked++;
 }
 
@@ -85,22 +88,22 @@ function moveEverything() {
     console.log("Head at: " + head);
     if (head.y < 0) { // off top
         // head.y = gridRows - 1;
-        reset()
+        fail();
         head.y++;
     }
     if (head.y >= gridRows) { // off bottom
         // head.y = 0;
-        reset()
+        fail()
         head.y--;
     }
     if (head.x < 0) { // off left
         // head.x = gridColumns - 1;
-        reset()
+        fail();
         head.x++;
     }
     if (head.x >= gridColumns) { // off right
         // head.x = 0;
-        reset()
+        fail();
         head.x--;
     }
 
@@ -128,12 +131,13 @@ function drawEverything() {
         // collide self
         if (gC.x === head.x && gC.y === head.y && i !== trailCoords.length - 1) {
             // tailLength = trailCoords.length - i;
-            reset()
+            fail();
         }
 
         // collide apple
         if (gC.x === apple.x && gC.y === apple.y) {
             tailLength++;
+            score = tailLength -2;
             generateApple();
         }
 
@@ -158,8 +162,8 @@ function initialiseGrid() {
         gridArray[c] = [];
         for (let r = 0; r <= gridRows; r++) {
             gridArray[c][r] = {
-                x: c * (gridSize + gridGap) + gridEdgePadding/2,
-                y: r * (gridSize + gridGap) + gridEdgePadding/2
+                x: c * (gridSize + gridGap) + gridEdgePadding / 2,
+                y: r * (gridSize + gridGap) + gridEdgePadding / 2
             };
         }
     }
@@ -168,7 +172,7 @@ function initialiseGrid() {
 function keyPush(e) {
     id = e.key;
 
-    if(['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].indexOf(id) > -1) { // if id is in list
+    if (['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].indexOf(id) > -1) { // if id is in list
         e.preventDefault(); // stop scroll
     }
 
@@ -214,7 +218,7 @@ function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
     var expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/projects/snake";
 }
 
 function getCookie(a) {
