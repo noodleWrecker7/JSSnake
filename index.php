@@ -28,7 +28,7 @@
         Snake
     </h1>
     <h2 class="sub-heading">
-        v1.0.2
+        Controls: WASD or Arrow keys
     </h2>
 </header>
 

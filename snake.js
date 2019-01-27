@@ -4,27 +4,28 @@ const fps = 10; //fps update rate
 let topScore;
 let score;
 let showingEnd = false;
-let tailLength = 2;
+let tailLength = 1;
+let startLength = tailLength;
 let xv = 0; // velocity
-let yv = 1;
+let yv = 0;
 let trailCoords = []; // map of current position
-var gridArray = []; // trueArray squares
+const gridArray = []; // trueArray squares
 let gridEdgePadding = 2;
 let gridGap = 2;
 let gridSize = 18;
 let gridRows = 28;
 let gridColumns = 28;
-let head = {x: 14, y: 0};
+let head = {x: 14, y: 13};
 let apple = {x: 0, y: 0};
-var left, up, down, right, acLeft, acUp, acDown, acRight;
-var endScreenBufferMax = 10;
-var endBufferTicked = 0;
+let left, up, down, right, acLeft, acUp, acDown, acRight;
+const endScreenBufferMax = 10;
+let endBufferTicked = 0;
 
 window.onload = function () {
     cvs = document.getElementById('snakeCanvas');
     ctx = cvs.getContext('2d');
-    scoreHTMl = document.getElementById("currentScore");
-    topScoreHTML = document.getElementById("topScore");
+    let scoreHTMl = document.getElementById("currentScore");
+    let topScoreHTML = document.getElementById("topScore");
 
     document.addEventListener("keydown", keyPush);
     initialiseGrid();
@@ -34,7 +35,7 @@ window.onload = function () {
         if (!showingEnd) {
             moveEverything();
             drawEverything();
-            scoreHTMl.innerText = "Score: " + (tailLength - 2);
+            scoreHTMl.innerText = "Score: " + (tailLength - startLength);
             topScoreHTML.innerHTML = "High score: " + (topScore);
         } else {
             showEnd();
@@ -45,13 +46,13 @@ window.onload = function () {
 function reset() {
     if (endBufferTicked > endScreenBufferMax) {
         trailCoords = [];
-        head = {x: 14, y: 0};
+        head = {x: 14, y: 13};
         apple = {x: 0, y: 0};
-        tailLength = 2;
+        tailLength = startLength;
         endBufferTicked = 0;
         generateApple();
         xv = 0;
-        yv = 1;
+        yv = 0;
         showingEnd = false;
         setCookie("highScore", topScore, 7);
         score = 0;
@@ -60,7 +61,7 @@ function reset() {
 }
 
 function fail() {
-    score = tailLength - 2;
+    score = tailLength - startLength;
     showingEnd = true;
     document.addEventListener("mousedown", reset);
     setCookie("highScore", topScore, 7);
@@ -70,6 +71,7 @@ function showEnd() {
     ctx.fillStyle = "white";
     ctx.font = '50px Arial';
     ctx.fillText("Game Over! Score: " + score, 20, 180);
+    ctx.fillText("Click anywhere to start", 20, 240);
 
     endBufferTicked++;
 }
@@ -85,7 +87,6 @@ function moveEverything() {
     acDown = down;
 
 
-    console.log("Head at: " + head);
     if (head.y < 0) { // off top
         // head.y = gridRows - 1;
         fail();
@@ -93,7 +94,7 @@ function moveEverything() {
     }
     if (head.y >= gridRows) { // off bottom
         // head.y = 0;
-        fail()
+        fail();
         head.y--;
     }
     if (head.x < 0) { // off left
@@ -123,7 +124,7 @@ function drawEverything() {
     ctx.fillRect(0, 0, cvs.width, cvs.height);
 
     // draw snake
-    for (i = 0; i < trailCoords.length; i++) {
+    for (let i = 0; i < trailCoords.length; i++) {
         ctx.fillStyle = "lime";
         let gC = trailCoords[i]; // trueArray co-ord
         ctx.fillRect(gridArray[gC.x][gC.y].x, gridArray[gC.x][gC.y].y, gridSize, gridSize);
@@ -137,13 +138,13 @@ function drawEverything() {
         // collide apple
         if (gC.x === apple.x && gC.y === apple.y) {
             tailLength++;
-            score = tailLength -2;
+            score = tailLength -startLength;
             generateApple();
         }
 
         // top score
         if (topScore < tailLength) {
-            topScore = tailLength - 2;
+            topScore = tailLength - startLength;
         }
     }
 
@@ -170,7 +171,7 @@ function initialiseGrid() {
 }
 
 function keyPush(e) {
-    id = e.key;
+    let id = e.key;
 
     if (['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].indexOf(id) > -1) { // if id is in list
         e.preventDefault(); // stop scroll
@@ -215,13 +216,13 @@ function keyPush(e) {
 }
 
 function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
+    const d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = "expires=" + d.toUTCString();
+    const expires = "expires=" + d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/projects/snake";
 }
 
 function getCookie(a) {
-    var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+    const b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
     return b ? b.pop() : '';
 }
