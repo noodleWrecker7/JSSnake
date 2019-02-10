@@ -123,7 +123,7 @@ function drawEverything() {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-    // draw snake
+    // globalDraw snake
     for (let i = 0; i < trailCoords.length; i++) {
         ctx.fillStyle = "lime";
         let gC = trailCoords[i]; // trueArray co-ord
